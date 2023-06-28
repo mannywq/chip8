@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <common.h>
 
 #define REG_COUNT 16
 #define MEM_SIZE 4096
@@ -9,12 +10,12 @@
 // index register
 uint16_t I;
 // Stack
-uint8_t stack[64];
+u8 stack[64];
 // Stack pointer
-uint8_t sp;
+u8 sp;
 
 // 64x32 video buffer
-uint8_t video_buffer[32][64];
+u8 video_buffer[32][64];
 
 // program counter
 uint16_t pc = 0;
