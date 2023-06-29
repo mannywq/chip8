@@ -1,5 +1,7 @@
 #pragma once
 
+#define STACK_SIZE 16
+
 #include "common.h"
 #include <stdio.h>
 #include <stdbool.h>
@@ -18,8 +20,8 @@ typedef struct {
 
   u8 display[32][64];
   u8 mem[4096];
-u8 rom_size;
-u16 current_opcode;
+  u8 rom_size;
+  u16 current_opcode;
 
 u16 stack[16];
 
@@ -35,3 +37,5 @@ u16 stack[16];
 
 void init_cpu(CPU *, char*);
 
+void push(CPU *cpu);
+void pop(CPU* cpu);
