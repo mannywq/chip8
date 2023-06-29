@@ -39,7 +39,7 @@ void opcode0(u16 opcode, CPU *cpu) {
       break;
 
     default:
-      printf("Unknown opcode - maybe data? %04x\n", opcode);
+      printf("Unmatched op code %04x at $%04x. Might be data or sprite data\n", opcode, cpu->registers.PC);
       break;
     }
 
@@ -171,9 +171,108 @@ u8 o_flag = opcode & 0x000F;
     break;
 
     }
+}
+
+void opcode9(u16 opcode, CPU *cpu) {
+
+printf("9XY0 - SNE X, Y - vx !== vy ? pc+=2\n");
+
+}
+
+void opcodeA(u16 opcode, CPU *cpu) { 
+
+printf("ANNN - MEM - I = $%03x\n", opcode & 0x0FFF);
+
+}
+
+void opcodeB(u16 opcode, CPU *cpu) {
+
+    printf("BNNN - JMP - PC = NNN + v0\n");
+
+}
+void opcodeC(u16 opcode, CPU *cpu) {
+
+printf("CXNN - Vx = rand() & NN\n");
 
 
 }
+
+void opcodeD(u16 opcode, CPU *cpu) {
+
+    printf("DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord\n");
+
+
+}
+
+void opcodeE(u16 opcode, CPU *cpu) {
+
+  u8 x = (opcode & 0x0F00) >> 8;
+
+      switch (opcode & 0x00FF) {
+
+      case 0x009e:
+        printf("EX9E - SE if key() == vx (%01x)\n", x);
+        break;
+
+      case 0x00a1:
+        printf("EXA1 - SNE if key() != vx (%01x)\n", x);
+        break;
+      }
+    }
+
+void opcodeF(u16 opcode, CPU *cpu) {
+
+  u8 nn = opcode & 0x00FF;
+
+printf("NN is %02x\n", nn);
+
+    switch (nn) {
+
+    case 0x07:
+
+      printf("FX07 - VX = get_delay() of timer\n");
+      break;
+
+    case 0x0a:
+
+      printf("FX0A - Vx = get_key()\n");
+      break;
+
+    case 0x15:
+
+      printf("delay_timer(Vx)\n");
+      break;
+
+    case 0x18:
+      printf("sound_timer(Vx)\n");
+      break;
+
+    case 0x1e:
+
+      printf("FX1E - MEM - I += Vx\n");
+      break;
+    case 0x29:
+      printf("FX29 - MEM - I = sprite_addr[Vx]\n");
+      break;
+
+    case 0x33:
+
+      printf("FX33 - BCD - I = bcd(vx)\n");
+      break;
+
+    case 0x55:
+      printf("FX55 - reg_dump(vx, &i) - 0->vx stored in mem\n");
+      break;
+
+    case 0x65:
+      printf("FX65 - reg_load(vx, &i) - load range until vx from i\n");
+      break;
+    default:
+
+      printf("Unmatched op code %04x at $%04x. Might be data or sprite data\n", opcode, cpu->registers.PC);
+    } // end switch (nn)
+  }  
+
 
 
 OpcodeFunction opcodeTable[16] = {
@@ -186,8 +285,13 @@ OpcodeFunction opcodeTable[16] = {
  [6] = opcode6,
  [7] = opcode7,
  [8] = opcode8,
-
-  [9 ... 15] = NULL
+ [9] = opcode9,
+ [0xa] = opcodeA,
+ [0xb] = opcodeB,
+ [0xc] = opcodeC,
+ [0xd] = opcodeD,
+ [0xe] = opcodeE,
+ [0xf] = opcodeF,
 };
 
 void get_opcode(CPU *cpu, u8 *buffer) {
@@ -208,7 +312,7 @@ void get_opcode(CPU *cpu, u8 *buffer) {
   u8 opcodePrefix = (opcode & 0xF000) >> 12;
   // printf("Reg x is %02x. Reg y is %02x\n", x, y);
 
-  printf("Mem: $%04x - OP code: %04x \n", cpu->registers.PC, opcode);
+//  printf("Mem: $%04x - OP code: %04x \n", cpu->registers.PC, opcode);
 
   OpcodeFunction parseOpcode = opcodeTable[opcodePrefix];
 
@@ -422,7 +526,7 @@ void get_opcode(CPU *cpu, u8 *buffer) {
       printf("FX65 - reg_load(vx, &i) - load range until vx from i\n");
       break;
     default:
-      printf("Unmatched op code %04x. Might be data or sprite data\n", opcode);
+      printf("Unmatched op code %04x at $%04x. Might be data or sprite data\n", opcode, cpu->registers.PC);
     } // end switch (nn)
   }   // end switch (opcode & 0xf000)
 } 
