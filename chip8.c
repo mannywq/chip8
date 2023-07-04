@@ -6,6 +6,7 @@
 #include <cpu.h>
 #include <opcodes.h>
 #include <string.h>
+#include <SDL.h>
 
 #define REG_COUNT 16
 #define MEM_SIZE 4096

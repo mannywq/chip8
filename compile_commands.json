@@ -1,0 +1,17 @@
+[
+ {
+  "directory": "/Users/emanuelwetterqvist/workspace/projects/chip8",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Werror",
+   "-Iinclude",
+   "chip8.c",
+   "cpu.c",
+   "opcodes.c",
+   "-o",
+   "chip8"
+  ],
+  "file": "opcodes.c"
+ }
+]
