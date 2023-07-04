@@ -6,6 +6,7 @@
    "-Wall",
    "-Werror",
    "-Iinclude",
+   "-I/opt/homebrew/include/SDL2",
    "chip8.c",
    "cpu.c",
    "opcodes.c",

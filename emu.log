@@ -1,0 +1,125 @@
+f0 is the value of first font char in memory
+$0000: Loaded 132 bytes
+File size is 132 bytes
+Loaded Rom: ibm-logo.ch8
+$0202: (00e0) Opcode function for 00e0!
+CLS - disp_clear()
+$0204: (a22a) ANNN - SET MEM, NNN
+I = $022a
+$0206: (600c) 6XNN - SET Vx, NN
+V[0] is 0c
+$0208: (6108) 6XNN - SET Vx, NN
+V[1] is 08
+$020a: (d01f) DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord
+Drawing from register V0 and V1 to coords 12, 8 at 15 height using sprite at $022a
+$020c: (7009) 7XNN - ADD VX, NN - 00 += 9
+Initial value of V[0] is 12
+V[0] is 21
+$020e: (a239) ANNN - SET MEM, NNN
+I = $0239
+$0210: (d01f) DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord
+Drawing from register V0 and V1 to coords 21, 8 at 15 height using sprite at $0239
+$0212: (a248) ANNN - SET MEM, NNN
+I = $0248
+$0214: (7008) 7XNN - ADD VX, NN - 00 += 8
+Initial value of V[0] is 21
+V[0] is 29
+$0216: (d01f) DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord
+Drawing from register V0 and V1 to coords 29, 8 at 15 height using sprite at $0248
+$0218: (7004) 7XNN - ADD VX, NN - 00 += 4
+Initial value of V[0] is 29
+V[0] is 33
+$021a: (a257) ANNN - SET MEM, NNN
+I = $0257
+$021c: (d01f) DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord
+Drawing from register V0 and V1 to coords 33, 8 at 15 height using sprite at $0257
+$021e: (7008) 7XNN - ADD VX, NN - 00 += 8
+Initial value of V[0] is 33
+V[0] is 41
+$0220: (a266) ANNN - SET MEM, NNN
+I = $0266
+$0222: (d01f) DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord
+Drawing from register V0 and V1 to coords 41, 8 at 15 height using sprite at $0266
+$0224: (7008) 7XNN - ADD VX, NN - 00 += 8
+Initial value of V[0] is 41
+V[0] is 49
+$0226: (a275) ANNN - SET MEM, NNN
+I = $0275
+$0228: (d01f) DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord
+Drawing from register V0 and V1 to coords 49, 8 at 15 height using sprite at $0275
+$022a: (1228) 1NNN - Jump/goto mem address 228
+$022c: (ff00) NN is 00
+Unmatched op code ff00 at $022c. Might be data or sprite data
+$022e: (ff00) NN is 00
+Unmatched op code ff00 at $022e. Might be data or sprite data
+$0230: (3c00) 3XNN - if (Vx == NN) 0xc, 00 - skip if true
+$0232: (3c00) 3XNN - if (Vx == NN) 0xc, 00 - skip if true
+$0234: (3c00) 3XNN - if (Vx == NN) 0xc, 00 - skip if true
+$0236: (3c00) 3XNN - if (Vx == NN) 0xc, 00 - skip if true
+$0238: (ff00) NN is 00
+Unmatched op code ff00 at $0238. Might be data or sprite data
+$023a: (ffff) NN is ff
+Unmatched op code ffff at $023a. Might be data or sprite data
+$023c: (00ff) Opcode function for 00ff!
+Unmatched op code 00ff at $023c. Might be data or sprite data
+$023e: (0038) Opcode function for 0038!
+Unmatched op code 0038 at $023e. Might be data or sprite data
+$0240: (003f) Opcode function for 003f!
+Unmatched op code 003f at $0240. Might be data or sprite data
+$0242: (003f) Opcode function for 003f!
+Unmatched op code 003f at $0242. Might be data or sprite data
+$0244: (0038) Opcode function for 0038!
+Unmatched op code 0038 at $0244. Might be data or sprite data
+$0246: (00ff) Opcode function for 00ff!
+Unmatched op code 00ff at $0246. Might be data or sprite data
+$0248: (00ff) Opcode function for 00ff!
+Unmatched op code 00ff at $0248. Might be data or sprite data
+$024a: (8000) 8XYN = VX VY operation - 00 00 flag: 0
+8XY0 - VX = VY - 00 00
+$024c: (e000) $024e: (e000) $0250: (8000) 8XYN = VX VY operation - 00 00 flag: 0
+8XY0 - VX = VY - 00 00
+$0252: (8000) 8XYN = VX VY operation - 00 00 flag: 0
+8XY0 - VX = VY - 00 00
+$0254: (e000) $0256: (e000) $0258: (80f8) 8XYN = VX VY operation - 00 0f flag: 8
+SHL VX (VY) - VX <<= 1 - 00 *2
+ - v[0xf] = VX & 0x01
+$025a: (00fc) Opcode function for 00fc!
+Unmatched op code 00fc at $025a. Might be data or sprite data
+$025c: (003e) Opcode function for 003e!
+Unmatched op code 003e at $025c. Might be data or sprite data
+$025e: (003f) Opcode function for 003f!
+Unmatched op code 003f at $025e. Might be data or sprite data
+$0260: (003b) Opcode function for 003b!
+Unmatched op code 003b at $0260. Might be data or sprite data
+$0262: (0039) Opcode function for 0039!
+Unmatched op code 0039 at $0262. Might be data or sprite data
+$0264: (00f8) Opcode function for 00f8!
+Unmatched op code 00f8 at $0264. Might be data or sprite data
+$0266: (00f8) Opcode function for 00f8!
+Unmatched op code 00f8 at $0266. Might be data or sprite data
+$0268: (0300) Opcode function for 0300!
+Unmatched op code 0300 at $0268. Might be data or sprite data
+$026a: (0700) Opcode function for 0700!
+Unmatched op code 0700 at $026a. Might be data or sprite data
+$026c: (0f00) Opcode function for 0f00!
+Unmatched op code 0f00 at $026c. Might be data or sprite data
+$026e: (bf00) BNNN - JMP - PC = NNN + v0
+$0270: (fb00) NN is 00
+Unmatched op code fb00 at $0270. Might be data or sprite data
+$0272: (f300) NN is 00
+Unmatched op code f300 at $0272. Might be data or sprite data
+$0274: (e300) $0276: (43e5) 4XNN - if (Vx != NN) 3, e5 - skip if true
+$0278: (05e2) Opcode function for 05e2!
+Unmatched op code 05e2 at $0278. Might be data or sprite data
+$027a: (0085) Opcode function for 0085!
+Unmatched op code 0085 at $027a. Might be data or sprite data
+$027c: (0781) Opcode function for 0781!
+Unmatched op code 0781 at $027c. Might be data or sprite data
+$027e: (0180) Opcode function for 0180!
+Unmatched op code 0180 at $027e. Might be data or sprite data
+$0280: (0280) Opcode function for 0280!
+Unmatched op code 0280 at $0280. Might be data or sprite data
+$0282: (07e5) Opcode function for 07e5!
+Unmatched op code 07e5 at $0282. Might be data or sprite data
+$0284: (05e7) Opcode function for 05e7!
+Unmatched op code 05e7 at $0284. Might be data or sprite data
