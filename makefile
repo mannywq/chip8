@@ -1,5 +1,5 @@
 GCC=gcc
-CFLAGS= -Wall -Werror
+CFLAGS= -Wall -Werror -g
 TARGET = chip8
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS: .c=.o)

@@ -11,69 +11,62 @@
 #define REG_COUNT 16
 #define MEM_SIZE 4096
 
-static CPU cpu;
-
 u8 memory[MEM_SIZE];
 // 16 8-bit registers
 u8 v[REG_COUNT];
 
 int main(int argc, char **argv) {
 
-  init_cpu(&cpu, argv[1]);
+  // Our CPU object holding all Chip 8 registers and variables
+  CPU *cpu = malloc(sizeof(CPU));
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+  // Initialise registers and SDL
+  init_cpu(cpu, argv[1]);
 
-    printf("Failed to start SDL\n");
-    return -1;
-  }
+  SDL_SetRenderDrawColor(cpu->renderer, 0, 0, 0, 0);
 
-  SDL_Window *window = SDL_CreateWindow("SDL Test", SDL_WINDOWPOS_CENTERED,
-                                        SDL_WINDOWPOS_CENTERED, 640, 480, 0);
+  SDL_RenderClear(cpu->renderer);
 
-  if (window == NULL) {
+  SDL_RenderPresent(cpu->renderer);
 
-    printf("Failed to create window\n");
-    return -1;
-  }
-
-  SDL_Surface *surface = SDL_GetWindowSurface(window);
-
-  if (surface == NULL) {
-
-    printf("Failed to create surface from window\n");
-    return -1;
-  }
-
-  // Fill the surface white
-  SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0x00, 0x00, 0x00));
-
-  SDL_UpdateWindowSurface(window);
-
-  while (cpu.registers.PC < 0x200 + cpu.rom_size) {
+  while (cpu->registers.PC < 0x200 + cpu->rom_size) {
 
     u8 buffer[2];
 
     // Copy 2 bytes from memory index of PC to buffer
-    memcpy(buffer, &cpu.mem[cpu.registers.PC], 2);
+    memcpy(buffer, &cpu->mem[cpu->registers.PC], 2);
 
     // Increment PC before handling OP code to make sure jumps etc work properly
-    cpu.registers.PC += 2;
-    get_opcode(&cpu, buffer);
+    cpu->registers.PC += 2;
+
+    uint32_t startFrame = SDL_GetTicks();
+
+    get_opcode(cpu, buffer);
+
+    uint32_t endFrame = SDL_GetTicks();
+
+    uint32_t deltaTime = endFrame - startFrame;
+
+    SDL_Delay(deltaTime > 16.67 ? deltaTime : 0);
+
+    update_screen(cpu);
   }
 
-  // Hack to get window to stay up
-  SDL_Event e;
-  bool quit = false;
-  while (quit == false) {
-    while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_QUIT)
-        quit = true;
+  // Loop until window close button is pressed or the Esc key
+  while (1) {
+
+    if (SDL_PollEvent(&cpu->event) && cpu->event.type == SDL_QUIT) {
+      break;
+    } else if (cpu->event.type == SDL_KEYDOWN &&
+               cpu->event.key.keysym.sym == SDLK_ESCAPE) {
+
+      break;
     }
   }
 
-  SDL_DestroyWindow(window);
-
-  SDL_Quit();
+  // Free SDL memory and cpu pointer
+  kill_cpu(cpu);
+  free(cpu);
 
   return EXIT_SUCCESS;
 }

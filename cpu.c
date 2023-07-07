@@ -6,6 +6,32 @@ void init_cpu(CPU *cpu, char *file)
 {
 
 
+  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+
+    printf("Failed to start SDL\n");
+    exit(-1);
+  }
+
+  cpu->window = SDL_CreateWindow("SDL Test", SDL_WINDOWPOS_CENTERED,
+                            SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_RESIZABLE);
+
+  if (cpu->window == NULL) {
+
+    printf("Failed to create window\n");
+    exit(-1);
+
+  }
+
+  cpu->renderer = SDL_CreateRenderer(cpu->window, -1, 0);
+  // SDL_Surface *surface = SDL_GetWindowSurface(window);
+
+  if (cpu->renderer == NULL) {
+
+    printf("Failed to create renderer\n");
+    exit(-1);
+  }
+
+
   FILE *fp = fopen(file, "rb");
 
   if (!fp)  {
@@ -66,6 +92,44 @@ printf("$%04x: ", cpu->registers.PC);
   printf("Loaded Rom: %s\n", cpu->rom_name); 
 
   fclose(fp);
+
+}
+
+void kill_cpu(CPU *cpu)
+{
+
+  //Cleanup SDL windows and surfaces
+  SDL_DestroyRenderer(cpu->renderer);
+  SDL_DestroyWindow(cpu->window);
+
+  SDL_Quit();
+
+}
+
+void update_screen(CPU *cpu)
+{
+
+
+  SDL_Rect rect = { .x = 0, .y = 0, .w = 20, .h = 20 };
+
+
+  for (int i = 0; i < sizeof(cpu->display); i++)
+  {
+
+    rect.x = (i % 640) * rect.w;
+    rect.y = (i / 640) * rect.h; 
+
+    if (cpu->display[i])
+    {
+      printf("Plotting: %d\n ", cpu->display[i]);
+      SDL_SetRenderDrawColor(cpu->renderer, 0xff, 0xff, 0xff, 0xff);
+      SDL_RenderFillRect(cpu->renderer, &rect);
+
+    }
+
+  }
+
+SDL_RenderPresent(cpu->renderer);
 
 }
 

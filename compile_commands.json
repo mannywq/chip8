@@ -7,11 +7,14 @@
    "-Werror",
    "-Iinclude",
    "-I/opt/homebrew/include/SDL2",
+   "-D_THREAD_SAFE",
    "chip8.c",
    "cpu.c",
    "opcodes.c",
    "-o",
-   "chip8"
+   "chip8",
+   "-L/opt/homebrew/lib",
+   "-lSDL2"
   ],
   "file": "opcodes.c"
  }

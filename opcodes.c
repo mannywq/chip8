@@ -239,21 +239,46 @@ void opcodeD(u16 opcode, CPU *cpu) {
 
   cpu->current_opcode = opcode;
 
-  u8 x = (opcode & 0x0F00) >> 8;
-  u8 y = (opcode & 0x00F0) >> 4;
+  u8 xreg = (opcode & 0x0F00) >> 8;
+  u8 yreg = (opcode & 0x00F0) >> 4;
   u8 n = opcode & 0x000F;
 
-  u8 cx = cpu->registers.v[x];
-  u8 cy = cpu->registers.v[y];
+  u8 cx = cpu->registers.v[xreg];
+  u8 cy = cpu->registers.v[yreg];
 
-  //  u16 offset = 0x200 + cpu->registers.I;
+  cpu->registers.v[0xf] = 0;
 
-  // u8 sprite = cpu->mem[offset];
+  for (u8 i = 0; i < n; i++)
+  {
 
-  printf("Drawing from register V%d and V%d to coords %d, %d at %d height "
-         "using sprite at $%04x\n",
-         x, y, cx, cy, n, cpu->registers.I);
-}
+    u8 sprite = cpu->mem[cpu->registers.I + i];
+
+    for (int j = 7; j >= 0; j--)
+    {
+      //Create a pointer to the right place in display memory
+      u8 *pixel = &cpu->display[cy * 32 + cx];
+
+      bool sprite_bit = (sprite & (1 << j));
+
+      if (sprite_bit && *pixel)
+      {
+        cpu->registers.v[0xf] = 1;
+      }
+
+      //xor display with pixel value (pixel already points to display mem)
+      //*pixel ^= sprite_bit;
+
+      printf("Pixel data is %02x\n", *pixel);
+
+
+    }
+  }
+
+
+  printf("Drawing from register V%d and V%d to coords %d, %d at %d height using sprite at $%04x\n",
+         xreg, yreg, cx, cy, n, cpu->registers.I);
+} //End function
+
 
 void opcodeE(u16 opcode, CPU *cpu) {
 
