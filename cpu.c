@@ -6,14 +6,14 @@ void init_cpu(CPU *cpu, char *file)
 {
 
 
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+  if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 
     printf("Failed to start SDL\n");
     exit(-1);
   }
 
   cpu->window = SDL_CreateWindow("SDL Test", SDL_WINDOWPOS_CENTERED,
-                            SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_RESIZABLE);
+                            SDL_WINDOWPOS_CENTERED, DISPLAY_WIDTH * cpu->scale, DISPLAY_HEIGHT * cpu->scale, SDL_WINDOW_SHOWN);
 
   if (cpu->window == NULL) {
 
@@ -30,6 +30,8 @@ void init_cpu(CPU *cpu, char *file)
     printf("Failed to create renderer\n");
     exit(-1);
   }
+
+  SDL_RenderPresent(cpu->renderer);
 
 
   FILE *fp = fopen(file, "rb");
@@ -108,28 +110,50 @@ void kill_cpu(CPU *cpu)
 
 void update_screen(CPU *cpu)
 {
+  SDL_SetRenderDrawColor(cpu->renderer, 0, 0, 0, 255);
+  SDL_RenderClear(cpu->renderer);
 
 
-  SDL_Rect rect = { .x = 0, .y = 0, .w = 20, .h = 20 };
-
-
-  for (int i = 0; i < sizeof(cpu->display); i++)
+  for (int i = 0; i < DISPLAY_HEIGHT; i++)
   {
 
-    rect.x = (i % 640) * rect.w;
-    rect.y = (i / 640) * rect.h; 
-
-    if (cpu->display[i])
+    for (int j = 0; j < DISPLAY_WIDTH; j++)
     {
-      printf("Plotting: %d\n ", cpu->display[i]);
-      SDL_SetRenderDrawColor(cpu->renderer, 0xff, 0xff, 0xff, 0xff);
-      SDL_RenderFillRect(cpu->renderer, &rect);
 
+      
+      if (cpu->display[i][j] != 0)
+      {
+        draw_pixel(cpu, i, j, 1);
+      }
+      else 
+      {
+
+       continue; 
+
+      }
     }
+
 
   }
 
-SDL_RenderPresent(cpu->renderer);
+//SDL_RenderPresent(cpu->renderer);
+
+cpu->draw = 0;
+
+} //End update_screen()
+//
+void draw_pixel(CPU *cpu, int y, int x, bool white) 
+{
+  //printf("Drawing pixel at row: %d col: %d\n", y, x);
+
+  
+  SDL_SetRenderDrawColor(cpu->renderer, 255, 255, 255, 255);
+
+  SDL_Rect rect = { .x = x * cpu->scale, .y = y = cpu->scale, .w = cpu->scale, .h = cpu->scale };
+
+  SDL_RenderFillRect(cpu->renderer, &rect);
+
+  SDL_RenderPresent(cpu->renderer);
 
 }
 

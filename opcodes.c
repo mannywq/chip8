@@ -30,6 +30,9 @@ void opcode0(u16 opcode, CPU *cpu) {
   case 0x00e0:
 
     printf("CLS - disp_clear()\n");
+
+    SDL_SetRenderDrawColor(cpu->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(cpu->renderer);
     break;
 
   case 0x00ee:
@@ -48,6 +51,8 @@ void opcode0(u16 opcode, CPU *cpu) {
 void opcode1(u16 opcode, CPU *cpu) {
 
   printf("1NNN - Jump/goto mem address %03x\n", opcode & 0x0FFF);
+
+  cpu->registers.SP = opcode & 0x0fff;
 }
 
 void opcode2(u16 opcode, CPU *cpu) {
@@ -243,44 +248,52 @@ void opcodeD(u16 opcode, CPU *cpu) {
   u8 yreg = (opcode & 0x00F0) >> 4;
   u8 n = opcode & 0x000F;
 
-  u8 cx = cpu->registers.v[xreg];
+  u8 cx = cpu->registers.v[xreg]; 
   u8 cy = cpu->registers.v[yreg];
 
   cpu->registers.v[0xf] = 0;
 
   for (u8 i = 0; i < n; i++)
   {
+    int draw_y = cy + i;
+    if (cpu->wrapSprite == 1) draw_y &= DISPLAY_HEIGHT -1;
+    if (draw_y >= DISPLAY_HEIGHT) break;
 
-    u8 sprite = cpu->mem[cpu->registers.I + i];
 
-    for (int j = 7; j >= 0; j--)
+    u8 spriteByte = cpu->mem[cpu->registers.I + i];
+
+    for (int j = 0; j < 8; j++)
     {
-      //Create a pointer to the right place in display memory
-      u8 *pixel = &cpu->display[cy * 32 + cx];
+      int draw_x = cx + j;
+      if (cpu->wrapSprite == 1) draw_x &= DISPLAY_WIDTH -1;
+      if (draw_x >= DISPLAY_WIDTH) break;
 
-      bool sprite_bit = (sprite & (1 << j));
+      bool sprite_bit = (spriteByte >> (7 -j)) & 1;
 
-      if (sprite_bit && *pixel)
+      printf("%s", sprite_bit != 0 ? "|" : "*");
+
+      if (sprite_bit == 0)
       {
+        continue;
+      }
+      if (cpu->display[cy + i][cx +j] == 1 && sprite_bit == 1) {
+
         cpu->registers.v[0xf] = 1;
+
       }
 
-      //xor display with pixel value (pixel already points to display mem)
-      //*pixel ^= sprite_bit;
-
-      printf("Pixel data is %02x\n", *pixel);
-
-
+      cpu->display[draw_y][draw_x] ^= sprite_bit;
     }
+    
+      puts("\n");
   }
-
-
-  printf("Drawing from register V%d and V%d to coords %d, %d at %d height using sprite at $%04x\n",
-         xreg, yreg, cx, cy, n, cpu->registers.I);
+    //Mark draw as true to make sure screen is redrawn
+    cpu->draw = 1;
 } //End function
 
 
-void opcodeE(u16 opcode, CPU *cpu) {
+void opcodeE(u16 opcode, CPU *cpu) 
+{
 
   u8 x = (opcode & 0x0F00) >> 8;
 

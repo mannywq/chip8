@@ -20,14 +20,11 @@ int main(int argc, char **argv) {
   // Our CPU object holding all Chip 8 registers and variables
   CPU *cpu = malloc(sizeof(CPU));
 
+  cpu->scale = 20;
+  cpu->wrapSprite = 1;
+
   // Initialise registers and SDL
   init_cpu(cpu, argv[1]);
-
-  SDL_SetRenderDrawColor(cpu->renderer, 0, 0, 0, 0);
-
-  SDL_RenderClear(cpu->renderer);
-
-  SDL_RenderPresent(cpu->renderer);
 
   while (cpu->registers.PC < 0x200 + cpu->rom_size) {
 
@@ -49,7 +46,10 @@ int main(int argc, char **argv) {
 
     SDL_Delay(deltaTime > 16.67 ? deltaTime : 0);
 
-    update_screen(cpu);
+    if (cpu->draw == 1) {
+      puts("Draw flag set\n");
+      update_screen(cpu);
+    }
   }
 
   // Loop until window close button is pressed or the Esc key

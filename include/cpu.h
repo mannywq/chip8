@@ -1,5 +1,7 @@
 #pragma once
 
+#define DISPLAY_HEIGHT 32
+#define DISPLAY_WIDTH 64
 #define STACK_SIZE 16
 
 #include <common.h>
@@ -23,10 +25,18 @@ typedef struct {
   SDL_Texture *texture;
   SDL_Event event;
 
-  u8 display[32*64];
+  bool display[32][64];
+
+  u8 cx;
+  u8 cy;
   u8 mem[4096];
   u8 rom_size;
   u16 current_opcode;
+
+  bool draw;
+  bool wrapSprite;
+
+  int scale;
 
 u16 stack[16];
 
@@ -44,5 +54,6 @@ void init_cpu(CPU *, char*);
 void kill_cpu(CPU * cpu);
 
 void update_screen(CPU *cpu);
+void draw_pixel(CPU *cpu, int x, int y, bool white);
 void push(CPU *cpu);
 void pop(CPU* cpu);
