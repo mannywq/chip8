@@ -4,6 +4,19 @@
 
 void init_cpu(CPU *cpu, char *file)
 {
+  memset(cpu, 0, sizeof(CPU));
+
+  cpu->looping = 0;
+  cpu->scale = 10;
+  cpu->wrapSprite = 1;
+
+  for (int y = 0; y < DISPLAY_HEIGHT; y++)
+  {
+    for (int x = 0; x < DISPLAY_WIDTH; x++)
+    {
+      cpu->display[y][x] = 0;
+    }
+  }
 
 
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -31,7 +44,9 @@ void init_cpu(CPU *cpu, char *file)
     exit(-1);
   }
 
-  SDL_RenderPresent(cpu->renderer);
+//  cpu->texture = SDL_CreateTexture(cpu->renderer, SDL_PIXELTYPE_INDEX8, SDL_TEXTUREACCESS_STREAMING, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+
+  //SDL_RenderPresent(cpu->renderer);
 
 
   FILE *fp = fopen(file, "rb");
@@ -72,7 +87,7 @@ printf("%02x is the value of first font char in memory\n", cpu->mem[0]);
 printf("$%04x: ", cpu->registers.PC);
 
 //Set initial program counter offset
- cpu->registers.PC = 0x200;
+ cpu->registers.PC = 0x200 -2;
 
  cpu->registers.SP = cpu->stack[STACK_SIZE -1];
 
@@ -110,50 +125,46 @@ void kill_cpu(CPU *cpu)
 
 void update_screen(CPU *cpu)
 {
-  SDL_SetRenderDrawColor(cpu->renderer, 0, 0, 0, 255);
   SDL_RenderClear(cpu->renderer);
 
-
-  for (int i = 0; i < DISPLAY_HEIGHT; i++)
+  for (int y = 0; y < DISPLAY_HEIGHT; y++)
   {
 
-    for (int j = 0; j < DISPLAY_WIDTH; j++)
+    for (int x = 0; x < DISPLAY_WIDTH; x++)
     {
 
+      bool pixel = cpu->display[y][x]; 
+      draw_pixel(cpu, y, x, pixel);
       
-      if (cpu->display[i][j] != 0)
-      {
-        draw_pixel(cpu, i, j, 1);
-      }
-      else 
-      {
-
-       continue; 
-
-      }
     }
-
 
   }
 
-//SDL_RenderPresent(cpu->renderer);
-
-cpu->draw = 0;
-
+  SDL_RenderPresent(cpu->renderer);
 } //End update_screen()
-//
-void draw_pixel(CPU *cpu, int y, int x, bool white) 
+
+
+void draw_pixel(CPU *cpu, int y, int x, bool pixel)
 {
-  //printf("Drawing pixel at row: %d col: %d\n", y, x);
-
   
-  SDL_SetRenderDrawColor(cpu->renderer, 255, 255, 255, 255);
+  SDL_Rect rect = { .x = x * cpu->scale, .y = y * cpu->scale, .w = cpu->scale, .h = cpu->scale };
 
-  SDL_Rect rect = { .x = x * cpu->scale, .y = y = cpu->scale, .w = cpu->scale, .h = cpu->scale };
+
+  if (pixel == 1)
+  {
+
+    printf("Drawing rect at y: %d x: %d and color: %d\n", rect.y, rect.x, pixel);
+    SDL_SetRenderDrawColor(cpu->renderer, 255, 255, 255, 255);
+  }
+  else 
+  {
+printf("Drawing rect at y: %d x: %d and color: %d\n", rect.y, rect.x, pixel);
+    SDL_SetRenderDrawColor(cpu->renderer, 35,35,35, 255);
+  }
+
+
 
   SDL_RenderFillRect(cpu->renderer, &rect);
-
-  SDL_RenderPresent(cpu->renderer);
 
 }
 

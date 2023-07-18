@@ -4,6 +4,8 @@
 
 typedef void (*OpcodeFunction)(u16 opcode, CPU *cpu);
 
+bool reg_flag = 0;
+
 void opcode0(u16 opcode, CPU *cpu);
 void opcode1(u16 opcode, CPU *cpu);
 void opcode2(u16 opcode, CPU *cpu);
@@ -25,17 +27,21 @@ void opcode0(u16 opcode, CPU *cpu) {
 
   printf("Opcode function for %04x!\n", opcode);
 
-  switch (opcode & 0x00FF) {
+  switch (opcode & 0x0FFF) {
 
-  case 0x00e0:
+  case 0x0e0:
 
     printf("CLS - disp_clear()\n");
 
     SDL_SetRenderDrawColor(cpu->renderer, 0, 0, 0, 255);
     SDL_RenderClear(cpu->renderer);
+
+    SDL_RenderPresent(cpu->renderer);
+
     break;
 
-  case 0x00ee:
+    
+  case 0x0ee:
 
     printf("RET - return from subroutine\n");
     break;
@@ -52,8 +58,19 @@ void opcode1(u16 opcode, CPU *cpu) {
 
   printf("1NNN - Jump/goto mem address %03x\n", opcode & 0x0FFF);
 
-  cpu->registers.SP = opcode & 0x0fff;
+  u16 destination = opcode & 0x0fff;
+
+  if (destination != cpu->registers.PC)
+  {
+    cpu->registers.PC = destination;
+  }
+  else 
+  {
+
+    cpu->looping = 1;
+  }
 }
+
 
 void opcode2(u16 opcode, CPU *cpu) {
 
@@ -156,16 +173,18 @@ void opcode8(u16 opcode, CPU *cpu) {
     if (cpu->registers.v[x] + cpu->registers.v[y] > 0xff)
     {
 
-      cpu->registers.v[0xf] = 1;
+     reg_flag = 1; 
 
     }
     else 
-      {
+    {
 
-        cpu->registers.v[0xf] = 0;
-      }
+        reg_flag = 0;
+    }
 
-      cpu->registers.v[x] += cpu->registers.v[y] & 0xFF;
+    cpu->registers.v[x] += cpu->registers.v[y] & 0xFF;
+
+    cpu->registers.v[0xf] = reg_flag;
 
 return;
 
@@ -224,6 +243,11 @@ return;
 void opcode9(u16 opcode, CPU *cpu) {
 
   printf("9XY0 - SNE X, Y - vx !== vy ? pc+=2\n");
+
+  u8 vx = 0x0F00 >> 8;
+  u8 vy = 0x00F0 >> 4;
+
+  if (cpu->registers.v[vx] != cpu->registers.v[vy]) cpu->registers.PC +=2;
 }
 
 void opcodeA(u16 opcode, CPU *cpu) {
@@ -235,58 +259,70 @@ void opcodeA(u16 opcode, CPU *cpu) {
   printf("I = $%04x\n", cpu->registers.I);
 }
 
-void opcodeB(u16 opcode, CPU *cpu) { printf("BNNN - JMP - PC = NNN + v0\n"); }
+void opcodeB(u16 opcode, CPU *cpu) { 
+
+  printf("BNNN - JMP - PC = NNN + v0\n"); 
+
+  u16 dest = opcode & 0x0FFF;
+  cpu->registers.PC = dest; 
+
+}
 void opcodeC(u16 opcode, CPU *cpu) { printf("CXNN - Vx = rand() & NN\n"); }
 
 void opcodeD(u16 opcode, CPU *cpu) {
 
-  printf("DXYN - draw(vx, vy, N) - 8w * nh sprite at x, y coord\n");
 
   cpu->current_opcode = opcode;
 
-  u8 xreg = (opcode & 0x0F00) >> 8;
-  u8 yreg = (opcode & 0x00F0) >> 4;
+  u8 rx = (opcode & 0x0F00) >> 8;
+  u8 ry = (opcode & 0x00F0) >> 4;
   u8 n = opcode & 0x000F;
 
-  u8 cx = cpu->registers.v[xreg]; 
-  u8 cy = cpu->registers.v[yreg];
+  u8 vx = cpu->registers.v[rx]; 
+  u8 vy = cpu->registers.v[ry];
+  
+  printf("DXYN - draw(Reg x, Reg y, N rows) - 8w * %d sprite from %d at %d, %d coord\n", n, cpu->registers.I, vx, vy);
 
-  cpu->registers.v[0xf] = 0;
+  u8 vf = 0;
 
-  for (u8 i = 0; i < n; i++)
+  //Row loop
+  for (int y = 0; y < n; y++)
   {
-    int draw_y = cy + i;
-    if (cpu->wrapSprite == 1) draw_y &= DISPLAY_HEIGHT -1;
-    if (draw_y >= DISPLAY_HEIGHT) break;
+        u8 spriteByte = cpu->mem[cpu->registers.I + y];
 
+        u8 draw_y = vy + y >= DISPLAY_HEIGHT ? (vy +y) % DISPLAY_HEIGHT : vy +y;
 
-    u8 spriteByte = cpu->mem[cpu->registers.I + i];
-
-    for (int j = 0; j < 8; j++)
+    for (int x = 0; x < 8; x++)
     {
-      int draw_x = cx + j;
-      if (cpu->wrapSprite == 1) draw_x &= DISPLAY_WIDTH -1;
-      if (draw_x >= DISPLAY_WIDTH) break;
+      u8 draw_x = (vx + x) >= DISPLAY_WIDTH ? (vx + x) % DISPLAY_WIDTH : vx + x;
 
-      bool sprite_bit = (spriteByte >> (7 -j)) & 1;
+      bool sprite_bit = spriteByte >> (7 - x) & 1;
+
+
+      //if (vy + y < DISPLAY_HEIGHT && vx + x < DISPLAY_WIDTH)
+      //{
+
+      bool set = cpu->display[draw_y][draw_x];
+      printf("Setting pixel at y: %d x: %d\n", draw_y, draw_x);
+
+      if (set && sprite_bit)
+      {
+        vf = 1;
+
+      }
+      {
+        cpu->display[draw_y][draw_x] ^= sprite_bit;
+
+      }
+     // }
 
       printf("%s", sprite_bit != 0 ? "|" : "*");
-
-      if (sprite_bit == 0)
-      {
-        continue;
-      }
-      if (cpu->display[cy + i][cx +j] == 1 && sprite_bit == 1) {
-
-        cpu->registers.v[0xf] = 1;
-
-      }
-
-      cpu->display[draw_y][draw_x] ^= sprite_bit;
     }
+    puts("\n");
     
-      puts("\n");
   }
+
+  cpu->registers.v[0xf] = vf;
     //Mark draw as true to make sure screen is redrawn
     cpu->draw = 1;
 } //End function
@@ -370,7 +406,17 @@ OpcodeFunction opcodeTable[16] = {
     [0xc] = opcodeC, [0xd] = opcodeD, [0xe] = opcodeE, [0xf] = opcodeF,
 };
 
-void get_opcode(CPU *cpu, u8 *buffer) {
+void get_opcode(CPU *cpu) {
+
+    // Increment PC before handling OP code to make sure jumps etc work properly
+    
+    cpu->registers.PC += 2;
+
+    u8 buffer[2];
+
+    // Copy 2 bytes from memory index of PC to buffer
+    memcpy(buffer, &cpu->mem[cpu->registers.PC], 2);
+
 
   u8 msB = buffer[0];
   u8 lsB = buffer[1];
@@ -378,22 +424,14 @@ void get_opcode(CPU *cpu, u8 *buffer) {
   u16 opcode = msB << 8 | lsB;
 
   printf("$%04x: (%04x) ", cpu->registers.PC, opcode);
-  //  //  u8 reg = target & 0xFF00;
-  //  //  u8 nn = target & 0x00FF;
-
-  ////  u8 x = (opcode & 0x0F00);
-  //  u8 y = (opcode & 0x00F0);
-  //  u8 nn = (opcode & 0x00FF);
-
-  //  u8 o_flag = opcode & 0x000F;
-
+  
   u8 opcodePrefix = (opcode & 0xF000) >> 12;
-  // printf("Reg x is %02x. Reg y is %02x\n", x, y);
-
-  //  printf("Mem: $%04x - OP code: %04x \n", cpu->registers.PC, opcode);
 
   OpcodeFunction parseOpcode = opcodeTable[opcodePrefix];
+
   if (parseOpcode != NULL) {
     parseOpcode(opcode, cpu);
   }
+
+
 }

@@ -33,6 +33,7 @@ typedef struct {
   u8 rom_size;
   u16 current_opcode;
 
+  bool looping;
   bool draw;
   bool wrapSprite;
 
@@ -54,6 +55,6 @@ void init_cpu(CPU *, char*);
 void kill_cpu(CPU * cpu);
 
 void update_screen(CPU *cpu);
-void draw_pixel(CPU *cpu, int x, int y, bool white);
+void draw_pixel(CPU *cpu, int y, int x, bool pixel);
 void push(CPU *cpu);
 void pop(CPU* cpu);
