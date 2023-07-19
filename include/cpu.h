@@ -30,7 +30,7 @@ typedef struct {
   u8 cx;
   u8 cy;
   u8 mem[4096];
-  u8 rom_size;
+  uint32_t rom_size;
   u16 current_opcode;
 
   bool looping;

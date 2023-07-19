@@ -92,7 +92,7 @@ printf("$%04x: ", cpu->registers.PC);
 
  cpu->registers.SP = STACK_SIZE -1;
 
-  u8 bytes = fread(cpu->mem + 0x200, sizeof(u8), cpu->rom_size, fp);
+  u8 bytes = fread(&cpu->mem[0x200], sizeof(u8), cpu->rom_size, fp);
 
  if (bytes != cpu->rom_size) {
 

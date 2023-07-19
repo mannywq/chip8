@@ -444,7 +444,7 @@ void opcodeF(u16 opcode, CPU *cpu) {
   case 0x55:
     printf("FX55 - reg_dump(vx, &i) - 0->vx stored in mem\n");
 
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i <= x; i++) {
 
         cpu->mem[cpu->registers.I + i] = cpu->registers.v[i];
     }
@@ -453,7 +453,7 @@ void opcodeF(u16 opcode, CPU *cpu) {
   case 0x65:
     printf("FX65 - reg_load(vx, &i) - load range until vx from i\n");
 
-    for (int i = 0; i < x; i++) {
+    for (int i = 0; i <= x; i++) {
 
         cpu->registers.v[i] = cpu->mem[cpu->registers.I + i];
 
@@ -491,7 +491,7 @@ void get_opcode(CPU *cpu) {
   if (opcode == 0x0000) {
 
     cpu->isRunning = 0;
-    return;
+    puts("Out of data");
   }
 
   printf("$%04x: (%04x) ", cpu->registers.PC, opcode);
