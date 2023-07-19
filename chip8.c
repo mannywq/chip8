@@ -24,14 +24,14 @@ int main(int argc, char **argv) {
   // Initialise registers and SDL
   init_cpu(cpu, argv[1]);
 
-  while (cpu->registers.PC < 0x200 + cpu->rom_size && cpu->looping != 1) {
+  while (cpu->registers.PC < 0x200 + cpu->rom_size) {
 
-    // uint32_t startFrame = SDL_GetTicks();
-
-    // for (int i = 0; i < INST_PER_FRAME; i++) {
+    if (cpu->looping)
+      break;
 
     get_opcode(cpu);
-    //}
+
+    // getchar();
 
     if (cpu->draw == 1) {
       puts("Draw flag set\n");
@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
 
       cpu->draw = 0;
     }
+
+    // getchar();
   }
 
   // Loop until window close button is pressed or the Esc key

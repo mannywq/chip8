@@ -87,9 +87,9 @@ printf("%02x is the value of first font char in memory\n", cpu->mem[0]);
 printf("$%04x: ", cpu->registers.PC);
 
 //Set initial program counter offset
- cpu->registers.PC = 0x200 -2;
+ cpu->registers.PC = 0x200;
 
- cpu->registers.SP = cpu->stack[STACK_SIZE -1];
+ cpu->registers.SP = STACK_SIZE -1;
 
   u8 bytes = fread(cpu->mem + 0x200, sizeof(u8), cpu->rom_size, fp);
 
@@ -153,12 +153,12 @@ void draw_pixel(CPU *cpu, int y, int x, bool pixel)
   if (pixel == 1)
   {
 
-    printf("Drawing rect at y: %d x: %d and color: %d\n", rect.y, rect.x, pixel);
+    //printf("Drawing rect at y: %d x: %d and color: %d\n", rect.y, rect.x, pixel);
     SDL_SetRenderDrawColor(cpu->renderer, 255, 255, 255, 255);
   }
   else 
   {
-printf("Drawing rect at y: %d x: %d and color: %d\n", rect.y, rect.x, pixel);
+//  printf("Drawing rect at y: %d x: %d and color: %d\n", rect.y, rect.x, pixel);
     SDL_SetRenderDrawColor(cpu->renderer, 35,35,35, 255);
   }
 
@@ -174,6 +174,8 @@ void push(CPU *cpu) {
 
     cpu->registers.SP--;
     cpu->stack[cpu->registers.SP] = cpu->registers.PC;
+
+    printf("Stack pointer is now %02x\n", cpu->stack[cpu->registers.SP]);
   }
   else {
 
@@ -186,6 +188,8 @@ void pop(CPU *cpu) {
 
   cpu->registers.PC = cpu->stack[cpu->registers.SP];
 
+printf("Program counter is now %02x\n", cpu->registers.PC);
+
   if (cpu->registers.SP < STACK_SIZE -1) {
 
     cpu->registers.SP++;
@@ -193,6 +197,21 @@ void pop(CPU *cpu) {
 
 }
 
+void step() {
+
+  while(1) {
+
+    SDL_Event ev;
+
+    if (SDL_PollEvent(&ev) && ev.type == SDL_KEYDOWN) {
+
+      if (ev.key.keysym.sym == SDLK_KP_SPACE) break;
+
+    }
+
+  }
+
+}
 
 
 

@@ -58,3 +58,4 @@ void update_screen(CPU *cpu);
 void draw_pixel(CPU *cpu, int y, int x, bool pixel);
 void push(CPU *cpu);
 void pop(CPU* cpu);
+void step();
