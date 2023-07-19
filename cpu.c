@@ -84,6 +84,7 @@ u8 font_arr_size = sizeof(font)/sizeof(font[0]);
 memcpy (cpu->mem, font, font_arr_size);
 
 printf("%02x is the value of first font char in memory\n", cpu->mem[0]);
+printf("Memory size: %lu\n", sizeof(cpu->mem));
 printf("$%04x: ", cpu->registers.PC);
 
 //Set initial program counter offset
@@ -109,6 +110,8 @@ printf("$%04x: ", cpu->registers.PC);
   printf("Loaded Rom: %s\n", cpu->rom_name); 
 
   fclose(fp);
+
+  cpu->isRunning = 1;
 
 }
 

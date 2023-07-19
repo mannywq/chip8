@@ -34,6 +34,7 @@ typedef struct {
   u16 current_opcode;
 
   bool looping;
+  bool isRunning;
   bool draw;
   bool wrapSprite;
 

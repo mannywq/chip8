@@ -119,7 +119,7 @@ void opcode5(u16 opcode, CPU *cpu) {
   u8 x = (opcode & 0x0F00) >> 8;
   u8 y = (opcode & 0x00F0) >> 4;
 
-  printf("5XY0 - if reg x == y - V%01x, V%01x\n", cpu->registers.v[x], cpu->registers.v[y]);
+  printf("5XY0 - if reg x == y - %02x, %01x\n", cpu->registers.v[x], cpu->registers.v[y]);
 
   if (cpu->registers.v[x] == cpu->registers.v[y]) cpu->registers.PC += 2;
 }
@@ -319,7 +319,7 @@ void opcodeB(u16 opcode, CPU *cpu) {
 
   printf("BNNN - JMP - PC = NNN + v0\n"); 
 
-  u16 dest = opcode & 0x0FFF;
+  u16 dest = (opcode & 0x0FFF) + cpu->registers.v[0];
   cpu->registers.PC = dest; 
 
 }
@@ -355,11 +355,7 @@ void opcodeD(u16 opcode, CPU *cpu) {
       bool sprite_bit = spriteByte >> (7 - x) & 1;
 
 
-      //if (vy + y < DISPLAY_HEIGHT && vx + x < DISPLAY_WIDTH)
-      //{
-
       bool set = cpu->display[draw_y][draw_x];
-//      printf("Setting pixel at y: %d x: %d\n", draw_y, draw_x);
 
       if (set && sprite_bit)
       {
@@ -372,9 +368,8 @@ void opcodeD(u16 opcode, CPU *cpu) {
       }
      // }
 
-      printf("%s", sprite_bit != 0 ? "|" : "*");
+//      printf("%s", sprite_bit != 0 ? "|" : "*");
     }
-    puts("\n");
     
   }
 
@@ -403,6 +398,7 @@ void opcodeE(u16 opcode, CPU *cpu)
 
 void opcodeF(u16 opcode, CPU *cpu) {
 
+  u8 x = (opcode & 0x0F00) >> 8;
   u8 nn = opcode & 0x00FF;
 
   printf("NN is %02x\n", nn);
@@ -431,9 +427,13 @@ void opcodeF(u16 opcode, CPU *cpu) {
   case 0x1e:
 
     printf("FX1E - MEM - I += Vx\n");
+
+    cpu->registers.I += cpu->registers.v[x];
     break;
   case 0x29:
     printf("FX29 - MEM - I = sprite_addr[Vx]\n");
+
+    cpu->registers.I = 0x0;
     break;
 
   case 0x33:
@@ -443,10 +443,22 @@ void opcodeF(u16 opcode, CPU *cpu) {
 
   case 0x55:
     printf("FX55 - reg_dump(vx, &i) - 0->vx stored in mem\n");
+
+    for (int i = 0; i < x; i++) {
+
+        cpu->mem[cpu->registers.I + i] = cpu->registers.v[i];
+    }
     break;
 
   case 0x65:
     printf("FX65 - reg_load(vx, &i) - load range until vx from i\n");
+
+    for (int i = 0; i < x; i++) {
+
+        cpu->registers.v[i] = cpu->mem[cpu->registers.I + i];
+
+    }
+
     break;
   default:
 
@@ -475,6 +487,12 @@ void get_opcode(CPU *cpu) {
   u8 lsB = buffer[1];
 
   u16 opcode = msB << 8 | lsB;
+
+  if (opcode == 0x0000) {
+
+    cpu->isRunning = 0;
+    return;
+  }
 
   printf("$%04x: (%04x) ", cpu->registers.PC, opcode);
   

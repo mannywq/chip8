@@ -24,14 +24,14 @@ int main(int argc, char **argv) {
   // Initialise registers and SDL
   init_cpu(cpu, argv[1]);
 
-  while (cpu->registers.PC < 0x200 + cpu->rom_size) {
+  while (cpu->isRunning) {
 
-    if (cpu->looping)
-      break;
+    double startTime = SDL_GetTicks();
 
-    get_opcode(cpu);
+    for (int i = 0; i < INST_PER_FRAME; i++) {
 
-    // getchar();
+      get_opcode(cpu);
+    }
 
     if (cpu->draw == 1) {
       puts("Draw flag set\n");
@@ -40,7 +40,28 @@ int main(int argc, char **argv) {
       cpu->draw = 0;
     }
 
-    // getchar();
+    SDL_PollEvent(&cpu->event);
+
+    if (cpu->event.type == SDL_QUIT)
+      break;
+
+    else if (cpu->event.type == SDL_KEYDOWN &&
+             cpu->event.key.keysym.sym == SDLK_ESCAPE)
+      break;
+
+    double finishTime = SDL_GetTicks();
+
+    double deltaTime = finishTime - startTime;
+
+    double sleepTime = 16.67 - deltaTime;
+
+    printf("Delta time: %f\n", sleepTime);
+
+    if (sleepTime > 0)
+      SDL_Delay(sleepTime);
+
+    else
+      SDL_Delay(16);
   }
 
   // Loop until window close button is pressed or the Esc key
