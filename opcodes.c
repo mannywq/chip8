@@ -388,11 +388,23 @@ void opcodeE(u16 opcode, CPU *cpu)
 
   case 0x009e:
     printf("EX9E - SE if key() == vx (%01x)\n", x);
+
+        
+      if (cpu->key[cpu->registers.v[x]] == 1)
+
+          cpu->registers.PC += 2;
+
+
     break;
 
   case 0x00a1:
     printf("EXA1 - SNE if key() != vx (%01x)\n", x);
-    break;
+
+    if (cpu->key[cpu->registers.v[x]] != 1)
+
+          cpu->registers.PC += 2;
+
+        break;
   }
 }
 
@@ -408,20 +420,43 @@ void opcodeF(u16 opcode, CPU *cpu) {
   case 0x07:
 
     printf("FX07 - VX = get_delay() of timer\n");
+
+      cpu->registers.v[x] = cpu->delay_timer;
     break;
 
   case 0x0a:
 
     printf("FX0A - Vx = get_key()\n");
+
+        for (int i = 0; i < 16; i++)
+        {
+          if (cpu->prev_key[i] == 1) {
+
+            if (cpu->key[i] == 0) {
+              cpu->registers.v[x] = i;
+              break;
+            }
+            else {
+
+              cpu->registers.PC -= 4;
+
+            }
+          }
+      }
+          
     break;
 
   case 0x15:
 
     printf("delay_timer(Vx)\n");
+
+    cpu->delay_timer = cpu->registers.v[x];
     break;
 
   case 0x18:
     printf("sound_timer(Vx)\n");
+
+    cpu->sound_timer = cpu->registers.v[x];
     break;
 
   case 0x1e:
@@ -433,12 +468,27 @@ void opcodeF(u16 opcode, CPU *cpu) {
   case 0x29:
     printf("FX29 - MEM - I = sprite_addr[Vx]\n");
 
-    cpu->registers.I = 0x0;
+    cpu->registers.I = cpu->mem[cpu->registers.v[x]];
+
     break;
 
   case 0x33:
 
     printf("FX33 - BCD - I = bcd(vx)\n");
+
+    u8 num = cpu->registers.v[x];
+
+    u8 ones = num % 10;
+    num /= 10;
+    u8 tens = num % 10;
+    num /= 10;
+    u8 hundreds = num;
+
+    cpu->mem[cpu->registers.I] = hundreds;
+    cpu->mem[cpu->registers.I + 1] = tens;
+    cpu->mem[cpu->registers.I + 2] = ones;
+
+
     break;
 
   case 0x55:

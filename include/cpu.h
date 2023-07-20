@@ -30,7 +30,7 @@ typedef struct {
   u8 cx;
   u8 cy;
   u8 mem[4096];
-  uint32_t rom_size;
+  int rom_size;
   u16 current_opcode;
 
   bool looping;
@@ -47,7 +47,7 @@ u16 stack[16];
   u8 halt;
 
   bool key[16];
-
+  bool prev_key[16];
   char *rom_name;
 
 } CPU;

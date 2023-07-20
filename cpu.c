@@ -49,19 +49,7 @@ void init_cpu(CPU *cpu, char *file)
   //SDL_RenderPresent(cpu->renderer);
 
 
-  FILE *fp = fopen(file, "rb");
-
-  if (!fp)  {
-
-    printf("Couldn't open file %s\n", file);
-  }
-
-  fseek(fp, 0, SEEK_END);
-
-  cpu->rom_size = ftell(fp);
-
-  rewind(fp);
-
+  
   u8 font[] = { 0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 0x20, 0x60, 0x20, 0x20, 0x70, // 1
 0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -85,18 +73,33 @@ memcpy (cpu->mem, font, font_arr_size);
 
 printf("%02x is the value of first font char in memory\n", cpu->mem[0]);
 printf("Memory size: %lu\n", sizeof(cpu->mem));
-printf("$%04x: ", cpu->registers.PC);
 
 //Set initial program counter offset
  cpu->registers.PC = 0x200;
 
+
+printf("Program counter: $%04x\n", cpu->registers.PC);
+
  cpu->registers.SP = STACK_SIZE -1;
 
-  u8 bytes = fread(&cpu->mem[0x200], sizeof(u8), cpu->rom_size, fp);
+FILE *fp = fopen(file, "rb");
+
+  if (!fp)  {
+
+    printf("Couldn't open file %s\n", file);
+  }
+
+  fseek(fp, 0, SEEK_END);
+
+  cpu->rom_size = ftell(fp);
+
+  fseek(fp, 0, SEEK_SET);
+
+
+  int bytes = fread(&cpu->mem[0x200], sizeof(u8), cpu->rom_size, fp);
 
  if (bytes != cpu->rom_size) {
 
-    //printf("Loaded %d bytes\n", bytes);
 
     printf("Something went wrong loading memory\n");
   }

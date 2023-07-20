@@ -26,7 +26,118 @@ int main(int argc, char **argv) {
 
   while (cpu->isRunning) {
 
+    bool keyState;
+
+    while (SDL_PollEvent(&cpu->event) != 0) {
+
+      if (cpu->event.type == SDL_QUIT)
+        break;
+
+      else if (cpu->event.type == SDL_KEYDOWN) {
+
+        keyState = 1;
+
+        printf("%s\n", SDL_GetKeyName(cpu->event.key.keysym.sym));
+
+      } else if (cpu->event.type == SDL_KEYUP)
+        keyState = 0;
+
+      switch (cpu->event.key.keysym.sym) {
+
+      case SDLK_ESCAPE:
+
+        cpu->isRunning = 0;
+
+        break;
+
+      case SDLK_0:
+
+        cpu->key[0] = keyState;
+
+        break;
+
+      case SDLK_1:
+
+        cpu->key[1] = keyState;
+
+        break;
+
+      case SDLK_2:
+
+        cpu->key[2] = keyState;
+
+        break;
+
+      case SDLK_3:
+
+        cpu->key[3] = keyState;
+
+        break;
+
+      case SDLK_4:
+
+        cpu->key[4] = keyState;
+
+        break;
+      case SDLK_5:
+
+        cpu->key[5] = keyState;
+
+        break;
+
+      case SDLK_6:
+
+        cpu->key[6] = keyState;
+
+        break;
+      case SDLK_7:
+
+        cpu->key[7] = keyState;
+
+        break;
+      case SDLK_8:
+
+        cpu->key[8] = keyState;
+
+        break;
+      case SDLK_9:
+        cpu->key[9] = keyState;
+
+        break;
+      case SDLK_a:
+
+        cpu->key[0xa] = keyState;
+
+        break;
+      case SDLK_b:
+
+        cpu->key[0xb] = keyState;
+        break;
+      case SDLK_c:
+        cpu->key[0xc] = keyState;
+        break;
+      case SDLK_d:
+        cpu->key[0xd] = keyState;
+        break;
+      case SDLK_e:
+        cpu->key[0xe] = keyState;
+        break;
+      case SDLK_f:
+        cpu->key[0xf] = keyState;
+        break;
+      }
+    }
+
     double startTime = SDL_GetTicks();
+
+    if (cpu->delay_timer > 0)
+      cpu->delay_timer--;
+
+    if (cpu->sound_timer > 0) {
+
+      cpu->sound_timer--;
+      printf("\a");
+    }
 
     for (int i = 0; i < INST_PER_FRAME; i++) {
 
@@ -39,15 +150,6 @@ int main(int argc, char **argv) {
 
       cpu->draw = 0;
     }
-
-    SDL_PollEvent(&cpu->event);
-
-    if (cpu->event.type == SDL_QUIT)
-      break;
-
-    else if (cpu->event.type == SDL_KEYDOWN &&
-             cpu->event.key.keysym.sym == SDLK_ESCAPE)
-      break;
 
     double finishTime = SDL_GetTicks();
 
@@ -62,10 +164,15 @@ int main(int argc, char **argv) {
 
     else
       SDL_Delay(16);
+
+    for (int i = 0; i < 16; i++) {
+
+      cpu->prev_key[i] = cpu->key[i];
+    }
   }
 
   // Loop until window close button is pressed or the Esc key
-  while (1) {
+  /*while (1) {
 
     if (SDL_PollEvent(&cpu->event) && cpu->event.type == SDL_QUIT) {
       break;
@@ -74,7 +181,7 @@ int main(int argc, char **argv) {
 
       break;
     }
-  }
+  }*/
 
   // Free SDL memory and cpu pointer
   kill_cpu(cpu);
