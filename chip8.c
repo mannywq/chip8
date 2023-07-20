@@ -28,6 +28,11 @@ int main(int argc, char **argv) {
 
     bool keyState;
 
+    for (int i = 0; i < 16; i++) {
+
+      cpu->prev_key[i] = cpu->key[i];
+    }
+
     while (SDL_PollEvent(&cpu->event) != 0) {
 
       if (cpu->event.type == SDL_QUIT)
@@ -164,11 +169,6 @@ int main(int argc, char **argv) {
 
     else
       SDL_Delay(16);
-
-    for (int i = 0; i < 16; i++) {
-
-      cpu->prev_key[i] = cpu->key[i];
-    }
   }
 
   // Loop until window close button is pressed or the Esc key

@@ -143,7 +143,7 @@ void opcode7(u16 opcode, CPU *cpu) {
   u8 x = (opcode & 0x0F00) >> 8;
   u8 nn = opcode & 0x00FF;
 
-  printf("7XNN - ADD VX, NN - %02x += %d\n", x, nn);
+  printf("7XNN - ADD VX, NN - Reg %01x (%02x) += %d\n", x, cpu->registers.v[x], nn);
 
   printf("Initial value of V[%d] is %d\n", x, cpu->registers.v[x]);
 
@@ -390,7 +390,7 @@ void opcodeE(u16 opcode, CPU *cpu)
     printf("EX9E - SE if key() == vx (%01x)\n", x);
 
         
-      if (cpu->key[cpu->registers.v[x]] == 1)
+      if (cpu->key[cpu->registers.v[x] & 0xf] == 1)
 
           cpu->registers.PC += 2;
 
@@ -400,7 +400,7 @@ void opcodeE(u16 opcode, CPU *cpu)
   case 0x00a1:
     printf("EXA1 - SNE if key() != vx (%01x)\n", x);
 
-    if (cpu->key[cpu->registers.v[x]] != 1)
+    if (cpu->key[cpu->registers.v[x] & 0xf] != 1)
 
           cpu->registers.PC += 2;
 
@@ -413,7 +413,7 @@ void opcodeF(u16 opcode, CPU *cpu) {
   u8 x = (opcode & 0x0F00) >> 8;
   u8 nn = opcode & 0x00FF;
 
-  printf("NN is %02x\n", nn);
+  //printf("NN is %02x\n", nn);
 
   switch (nn) {
 
@@ -428,21 +428,24 @@ void opcodeF(u16 opcode, CPU *cpu) {
 
     printf("FX0A - Vx = get_key()\n");
 
+        bool keyPressed = false;
+
         for (int i = 0; i < 16; i++)
         {
-          if (cpu->prev_key[i] == 1) {
+          if (cpu->prev_key[i] != 0) {
 
             if (cpu->key[i] == 0) {
               cpu->registers.v[x] = i;
+          keyPressed = true;
               break;
-            }
-            else {
-
-              cpu->registers.PC -= 4;
-
-            }
           }
-      }
+          }
+
+
+        }
+
+        if (!keyPressed) cpu->registers.PC -= 2;
+        
           
     break;
 
@@ -464,6 +467,9 @@ void opcodeF(u16 opcode, CPU *cpu) {
     printf("FX1E - MEM - I += Vx\n");
 
     cpu->registers.I += cpu->registers.v[x];
+
+    printf("I now pointing at %04x\n", cpu->registers.I);
+
     break;
   case 0x29:
     printf("FX29 - MEM - I = sprite_addr[Vx]\n");
